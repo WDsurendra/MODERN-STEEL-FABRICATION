@@ -6,7 +6,7 @@ export const GALLERY_ITEMS = [
     id: 'g1',
     category: 'Main Gates',
     title: 'Laser-Cut Modern Main Gate',
-    image: 'https://images.pexels.com/photos/13165402/pexels-photo-13165402.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+    image:t 'https://www.instagram.com/p/DK3TPwyvPYE/?img_index=1&igsh=MThvdGw3MnVnNHFzNQ==',
   },
   {
     id: 'g2',

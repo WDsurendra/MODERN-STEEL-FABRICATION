@@ -183,11 +183,14 @@ export default function Home() {
       <section className="card space-y-3 border-steel-200 bg-steel-900 text-white">
         <h2 className="font-display text-lg font-bold">Visit / Contact the Shop</h2>
         <div className="space-y-2 text-steel-100">
+          <<p className="flex items-center gap-3">
+  <Phone className="h-5 w-5 text-accent-400" /> +91 8502084234
+</p>
+<p className="flex items-center gap-3">
+  <Phone className="h-5 w-5 text-accent-400" /> +91 8290142721
+</p>
           <p className="flex items-center gap-3">
-            <Phone className="h-5 w-5 text-accent-400" /> +91 98765 43210
-          </p>
-          <p className="flex items-center gap-3">
-            <MapPin className="h-5 w-5 text-accent-400" /> Main Road, Industrial Area
+            <MapPin className="h-5 w-5 text-accent-400" /> Near post office, kadera, shahpura Road, Kadera, kekri
           </p>
           <p className="flex items-center gap-3">
             <Clock className="h-5 w-5 text-accent-400" /> Mon–Sat, 9 AM – 7 PM
