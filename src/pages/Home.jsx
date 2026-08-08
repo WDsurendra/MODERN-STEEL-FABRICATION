@@ -25,6 +25,7 @@ const categories = [
   { name: 'Windows', icon: Frame, desc: 'Steel-framed windows' },
   { name: 'Doors', icon: DoorOpen, desc: 'Single & double doors' },
   { name: 'Railings', icon: Grid3x3, desc: 'Balcony & stairs' },
+  { name: 'Other', icon: Hammer, desc: 'Custom steel work' }, // <-- Yeh nayi line add karni hai
 ]
 
 const features = [
