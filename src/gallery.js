@@ -110,6 +110,18 @@ export const GALLERY_ITEMS = [
     title: 'Iron Fence Railing',
     image: 'https://images.pexels.com/photos/15878287/pexels-photo-15878287.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
   },
+  {
+    id: 'g19',
+    category: 'Other',
+    title: 'Custom Steel Shed',
+    image: 'https://images.pexels.com/photos/17505963/pexels-photo-17505963.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+  },
+  {
+    id: 'g20',
+    category: 'Other',
+    title: 'Steel Staircase Frame',
+    image: 'https://images.pexels.com/photos/101808/pexels-photo-101808.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
+  }
 ]
 
-export const GALLERY_FILTERS = ['All', 'Main Gates', 'Safety Doors', 'Windows', 'Railings']
+export const GALLERY_FILTERS = ['All', 'Main Gates', 'Safety Doors', 'Windows', 'Railings','Other']
