@@ -19,7 +19,7 @@ export default function Layout({ children }) {
               <HardHat className="h-6 w-6" />
             </span>
             <div className="leading-tight">
-              <p className="font-display text-lg font-bold">Modern Steel</p>
+              <p className="font-display text-lg font-bold">SHREE KALYAN STEEL</p>
               <p className="text-2xs uppercase tracking-wider text-steel-300">Fabrication</p>
             </div>
           </Link>

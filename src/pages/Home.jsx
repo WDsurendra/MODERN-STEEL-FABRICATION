@@ -61,7 +61,7 @@ export default function Home() {
             <Hammer className="h-3.5 w-3.5" /> Local Fabrication Shop
           </span>
           <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
-            Modern Steel Fabrication
+           SHREE KALYAN STEEL FABRICATION
           </h1>
           <p className="mt-2 max-w-md text-base text-steel-200">
             Gates, Windows, Doors & Railings — made to your exact size in genuine SS 304 / SS 201 steel.
