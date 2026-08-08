@@ -25,7 +25,7 @@ const categories = [
   { name: 'Windows', icon: Frame, desc: 'Steel-framed windows' },
   { name: 'Doors', icon: DoorOpen, desc: 'Single & double doors' },
   { name: 'Railings', icon: Grid3x3, desc: 'Balcony & stairs' },
-  { name: 'Other', icon: Hammer, desc: 'Custom steel work' }, // <-- Yeh nayi line add karni hai
+  { name: 'Other', icon: Hammer, desc: 'Custom steel work' },
 ]
 
 const features = [
@@ -61,7 +61,7 @@ export default function Home() {
             <Hammer className="h-3.5 w-3.5" /> Local Fabrication Shop
           </span>
           <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
-           SHREE KALYAN STEEL FABRICATION
+            SHREE KALYAN STEEL FABRICATION
           </h1>
           <p className="mt-2 max-w-md text-base text-steel-200">
             Gates, Windows, Doors & Railings — made to your exact size in genuine SS 304 / SS 201 steel.
@@ -183,12 +183,12 @@ export default function Home() {
       <section className="card space-y-3 border-steel-200 bg-steel-900 text-white">
         <h2 className="font-display text-lg font-bold">Visit / Contact the Shop</h2>
         <div className="space-y-2 text-steel-100">
-          <<p className="flex items-center gap-3">
-  <Phone className="h-5 w-5 text-accent-400" /> +91 8502084234
-</p>
-<p className="flex items-center gap-3">
-  <Phone className="h-5 w-5 text-accent-400" /> +91 8290142721
-</p>
+          <p className="flex items-center gap-3">
+            <Phone className="h-5 w-5 text-accent-400" /> +91 8502084234
+          </p>
+          <p className="flex items-center gap-3">
+            <Phone className="h-5 w-5 text-accent-400" /> +91 8290142721
+          </p>
           <p className="flex items-center gap-3">
             <MapPin className="h-5 w-5 text-accent-400" /> Near post office, kadera, shahpura Road, Kadera, kekri
           </p>
