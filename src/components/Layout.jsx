@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, Outlet } from 'react-router-dom'
 import { HardHat, Home as HomeIcon, ClipboardPlus, Images, Lock } from 'lucide-react'
 
 const navItems = [
@@ -43,7 +43,9 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5 pb-24 sm:pb-8">{children}</main>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5 pb-24 sm:pb-8">
+  <Outlet />
+</main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-steel-200 bg-white sm:hidden">
         <div className="mx-auto flex max-w-3xl">
