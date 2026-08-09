@@ -142,7 +142,7 @@ export default function NewOrder() {
             </label>
             <input
               className="field-input"
-              placeholder="e.g. Ramesh Kumar"
+              placeholder="e.g. surendra Kumar"
               value={form.customer_name}
               onChange={set('customer_name')}
               autoComplete="name"
@@ -156,7 +156,7 @@ export default function NewOrder() {
               className="field-input"
               type="tel"
               inputMode="tel"
-              placeholder="e.g. 98765 43210"
+              placeholder="e.g. 88756 42587"
               value={form.phone}
               onChange={set('phone')}
               autoComplete="tel"
