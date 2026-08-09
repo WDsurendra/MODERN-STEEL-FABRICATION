@@ -15,8 +15,8 @@ function seedMock() {
   return [
     {
       id: uid(),
-      customer_name: 'Ramesh Kumar',
-      phone: '98765 43210',
+      customer_name: 'surendra Kumar',
+      phone: '88756 42587',
       item_type: 'Gate',
       steel_grade: 'SS 304',
       height_ft: 7,
