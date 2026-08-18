@@ -22,7 +22,7 @@ import {
   Upload,
 } from 'lucide-react'
 import { fetchOrders, updateOrderStatus } from '../data.js'
-import { supabase } from '../supabase.js' // Supabase import kiya h
+import { supabase } from '../supabase.js'
 
 const ADMIN_PIN = '1234'
 const SESSION_KEY = 'msf_admin_authed'
@@ -31,7 +31,7 @@ const TABS = [
   { key: 'pending', label: 'Naye Kaam', sub: 'Pending', icon: ClipboardList, color: 'accent' },
   { key: 'in_progress', label: 'Chalu Kaam', sub: 'In Progress', icon: HardHat, color: 'steel' },
   { key: 'completed', label: 'Purane Kaam', sub: 'History', icon: History, color: 'success' },
-  { key: 'gallery_upload', label: 'Gallery Photo', sub: 'Upload', icon: ImageIcon, color: 'steel' }, // Naya Tab joda h
+  { key: 'gallery_upload', label: 'Gallery Photo', sub: 'Upload', icon: ImageIcon, color: 'steel' },
 ]
 
 function fmtDate(iso) {
@@ -224,21 +224,18 @@ function GalleryUploadSection() {
       const fileName = `${Date.now()}.${fileExt}`
       const filePath = `${fileName}`
 
-      // 1. Supabase Storage mein upload karna
       let { error: uploadError } = await supabase.storage
         .from('gallery')
         .upload(filePath, selectedFile)
 
       if (uploadError) throw uploadError
 
-      // 2. Public URL lena
       const { data } = supabase.storage
         .from('gallery')
         .getPublicUrl(filePath)
 
       const publicUrl = data.publicUrl
 
-      // 3. Database mein entry save karna
       const { error: dbError } = await supabase
         .from('gallery')
         .insert([{ image_url: publicUrl, created_at: new Date() }])
@@ -285,3 +282,6 @@ function GalleryUploadSection() {
       <button
         onClick={handleUpload}
         disabled={uploading || !selectedFile}
+        className="btn-accent w-full text-lg py-3 flex items-center justify-center gap-2 disabled:opacity-50"
+      >
+        {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
