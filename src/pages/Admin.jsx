@@ -19,8 +19,10 @@ import {
   Calendar,
   ImageIcon,
   X,
+  Upload,
 } from 'lucide-react'
 import { fetchOrders, updateOrderStatus } from '../data.js'
+import { supabase } from '../supabase.js' // Supabase import kiya h
 
 const ADMIN_PIN = '1234'
 const SESSION_KEY = 'msf_admin_authed'
@@ -29,6 +31,7 @@ const TABS = [
   { key: 'pending', label: 'Naye Kaam', sub: 'Pending', icon: ClipboardList, color: 'accent' },
   { key: 'in_progress', label: 'Chalu Kaam', sub: 'In Progress', icon: HardHat, color: 'steel' },
   { key: 'completed', label: 'Purane Kaam', sub: 'History', icon: History, color: 'success' },
+  { key: 'gallery_upload', label: 'Gallery Photo', sub: 'Upload', icon: ImageIcon, color: 'steel' }, // Naya Tab joda h
 ]
 
 function fmtDate(iso) {
@@ -193,220 +196,92 @@ function OrderCard({ order, actionLabel, actionIcon: ActionIcon, onAction, actio
   )
 }
 
-function Dashboard() {
-  const navigate = useNavigate()
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [tab, setTab] = useState('pending')
-  const [busyId, setBusyId] = useState(null)
-  const [query, setQuery] = useState('')
-  const [previewImg, setPreviewImg] = useState(null)
+function GalleryUploadSection() {
+  const [uploading, setUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [preview, setPreview] = useState(null)
 
-  async function load() {
-    setLoading(true)
-    setError('')
-    try {
-      const data = await fetchOrders()
-      setOrders(data)
-    } catch (e) {
-      setError(e.message || 'Could not load orders')
-    } finally {
-      setLoading(false)
+  function handleFileChange(e) {
+    if (!e.target.files || e.target.files.length === 0) {
+      setSelectedFile(null)
+      setPreview(null)
+      return
     }
+    const file = e.target.files[0]
+    setSelectedFile(file)
+    setPreview(URL.createObjectURL(file))
   }
 
-  useEffect(() => {
-    load()
-  }, [])
-
-  async function advance(order) {
-    setBusyId(order.id)
-    try {
-      const next = order.status === 'pending' ? 'in_progress' : 'completed'
-      const updated = await updateOrderStatus(order.id, next)
-      setOrders((list) => list.map((o) => (o.id === order.id ? updated : o)))
-    } catch (e) {
-      setError(e.message || 'Update failed')
-    } finally {
-      setBusyId(null)
+  async function handleUpload() {
+    if (!selectedFile) {
+      alert('Kripya pehle ek photo select karein.')
+      return
     }
-  }
 
-  const filtered = useMemo(() => {
-    const byStatus = orders.filter((o) => o.status === tab)
-    if (tab !== 'completed') return byStatus
-    const q = query.trim().toLowerCase()
-    if (!q) return byStatus
-    return byStatus.filter(
-      (o) =>
-        o.customer_name.toLowerCase().includes(q) ||
-        o.phone.toLowerCase().includes(q) ||
-        o.item_type.toLowerCase().includes(q)
-    )
-  }, [orders, tab, query])
+    try {
+      setUploading(true)
+      const fileExt = selectedFile.name.split('.').pop()
+      const fileName = `${Date.now()}.${fileExt}`
+      const filePath = `${fileName}`
 
-  const counts = useMemo(
-    () => ({
-      pending: orders.filter((o) => o.status === 'pending').length,
-      in_progress: orders.filter((o) => o.status === 'in_progress').length,
-      completed: orders.filter((o) => o.status === 'completed').length,
-    }),
-    [orders]
-  )
+      // 1. Supabase Storage mein upload karna
+      let { error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(filePath, selectedFile)
 
-  function logout() {
-    sessionStorage.removeItem(SESSION_KEY)
-    navigate('/admin')
-    setTimeout(() => window.location.reload(), 50)
+      if (uploadError) throw uploadError
+
+      // 2. Public URL lena
+      const { data } = supabase.storage
+        .from('gallery')
+        .getPublicUrl(filePath)
+
+      const publicUrl = data.publicUrl
+
+      // 3. Database mein entry save karna
+      const { error: dbError } = await supabase
+        .from('gallery')
+        .insert([{ image_url: publicUrl, created_at: new Date() }])
+
+      if (dbError) throw dbError
+
+      alert('Photo kamyabi se gallery mein upload ho gayi h!')
+      setSelectedFile(null)
+      setPreview(null)
+    } catch (error) {
+      alert('Upload fail ho gaya: ' + error.message)
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-steel-900">Dashboard</h1>
-          <p className="text-steel-500">Manage shop orders</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={load} className="btn-ghost px-3 py-2" title="Refresh">
-            <RefreshCw className="h-5 w-5" />
-          </button>
-          <button onClick={logout} className="btn-ghost px-3 py-2 text-danger-600">
-            <LogOut className="h-5 w-5" /> <span className="hidden sm:inline">Logout</span>
-          </button>
-        </div>
+    <div className="card max-w-xl mx-auto space-y-4 p-6 bg-white rounded-2xl shadow-sm border border-steel-100">
+      <div className="text-center">
+        <h2 className="font-display text-xl font-bold text-steel-900">Nayi Photo Upload Karein</h2>
+        <p className="text-sm text-steel-500 mt-1">Yeh photo direct aapki live website ki gallery mein dikhegi.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="grid grid-cols-3 gap-2">
-        {TABS.map((t) => {
-          const active = tab === t.key
-          const count = counts[t.key] || 0
-          return (
+      <div className="flex flex-col items-center justify-center border-2 border-dashed border-steel-300 rounded-2xl p-4 bg-steel-50 hover:bg-steel-100 transition relative min-h-[200px]">
+        {preview ? (
+          <div className="relative w-full max-h-60 overflow-hidden rounded-xl">
+            <img src={preview} alt="Preview" className="w-full h-full object-contain mx-auto" />
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex flex-col items-center gap-1 rounded-2xl px-2 py-3 text-center transition ${
-                active
-                  ? 'bg-steel-900 text-white shadow-md'
-                  : 'bg-white text-steel-600 hover:bg-steel-100'
-              }`}
+              onClick={() => { setSelectedFile(null); setPreview(null); }}
+              className="absolute top-2 right-2 p-1.5 bg-steel-900/80 text-white rounded-full hover:bg-steel-900"
             >
-              <t.icon className="h-6 w-6" />
-              <span className="font-display text-base font-bold leading-none">{t.label}</span>
-              <span className={`text-2xs font-semibold uppercase ${active ? 'text-steel-300' : 'text-steel-400'}`}>
-                {t.sub} · {count}
-              </span>
+              <X className="h-4 w-4" />
             </button>
-          )
-        })}
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center cursor-pointer w-full py-8">
+            <Upload className="h-10 w-10 text-steel-400 mb-2" />
+            <span className="text-sm font-semibold text-steel-600">Photo Select Karne Ke Liye Tap Karein</span>
+            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+          </label>
+        )}
       </div>
 
-      {tab === 'completed' && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-steel-400" />
-          <input
-            className="field-input pl-11"
-            placeholder="Search by name, phone, or item…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-      )}
-
-      {error && (
-        <div className="rounded-xl border border-danger-100 bg-danger-50 px-4 py-3 text-sm font-semibold text-danger-600">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 text-steel-400">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="mt-3 font-semibold">Loading orders…</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-steel-200 bg-white py-16 text-center">
-          <Inbox className="h-12 w-12 text-steel-300" />
-          <p className="mt-3 font-display text-lg font-bold text-steel-700">No orders here</p>
-          <p className="text-sm text-steel-400">
-            {tab === 'pending'
-              ? 'New orders will appear here.'
-              : tab === 'in_progress'
-              ? 'Work in progress will show here.'
-              : 'Completed orders will be archived here.'}
-          </p>
-        </div>
-      ) : tab === 'completed' ? (
-        <div className="card overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-steel-50 text-2xs font-bold uppercase tracking-wide text-steel-500">
-                <tr>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Phone</th>
-                  <th className="px-4 py-3">Item</th>
-                  <th className="px-4 py-3">Size</th>
-                  <th className="px-4 py-3">Design</th>
-                  <th className="px-4 py-3">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-steel-100">
-                {filtered.map((o) => (
-                  <tr key={o.id} className="hover:bg-steel-50">
-                    <td className="px-4 py-3 font-semibold text-steel-900">{o.customer_name}</td>
-                    <td className="px-4 py-3 text-steel-600">{o.phone}</td>
-                    <td className="px-4 py-3 text-steel-600">{o.item_type}</td>
-                    <td className="px-4 py-3 font-bold text-success-600">{fmtSize(o)}</td>
-                    <td className="px-4 py-3">
-                      {o.design_image_url ? (
-                        <button onClick={() => setPreviewImg(o.design_image_url)} className="h-12 w-12 overflow-hidden rounded-lg border border-steel-200">
-                          <img src={o.design_image_url} alt="Design" className="h-full w-full object-cover" />
-                        </button>
-                      ) : (
-                        <span className="text-steel-300">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-steel-500">{fmtDate(o.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filtered.map((o) => (
-            <OrderCard
-              key={o.id}
-              order={o}
-              busyId={busyId}
-              setPreviewImg={setPreviewImg}
-              actionLabel={o.status === 'pending' ? 'Kaam Shuru Karein' : 'Kaam Poora Ho Gaya'}
-              actionIcon={o.status === 'pending' ? Play : CheckCircle2}
-              actionClass={o.status === 'pending' ? 'btn-accent' : 'btn-success'}
-              onAction={advance}
-            />
-          ))}
-        </div>
-      )}
-
-      {previewImg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-steel-950/95 p-4" onClick={() => setPreviewImg(null)}>
-          <button className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" onClick={() => setPreviewImg(null)}>
-            <X className="h-6 w-6" />
-          </button>
-          <img src={previewImg} alt="Design preview" className="max-h-[85vh] max-w-full rounded-2xl object-contain" onClick={(e) => e.stopPropagation()} />
-        </div>
-      )}
-    </div>
-  )
-}
-
-export default function Admin() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === '1')
-
-  if (!authed) return <PinLogin onSuccess={() => setAuthed(true)} />
-  return <Dashboard />
-}
+      <button
+        onClick={handleUpload}
+        disabled={uploading || !selectedFile}
